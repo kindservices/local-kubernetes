@@ -1,3 +1,5 @@
+# just an alias for convenience - this will install kind, argo, and kube apply argo
+install: getArgoPwd
 # ensures docker is running
 ensureDocker:
 	source argo.sh && ensureDocker
@@ -12,9 +14,6 @@ kubeApplyArgo: installArgo
 # captures the argo admin pwd in MY_ARGO_PWD
 getArgoPwd: kubeApplyArgo
 	source argo.sh && getArgoPwd
-
-# just an alias for convenience - this will install kind, argo, and kube apply argo
-install: getArgoPwd
 
 # login to argo. This isn't chained to any of the install stuff, as
 # 1) we'll do this quite often and want it separate and fast, and

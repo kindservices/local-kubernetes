@@ -6,9 +6,9 @@ This repo contains documentation, scripts and resources for:
 
 # Installing
 
-This script is doing what [you'd otherwise just do manually](./manualInstructions.md)
+This script is doing what [you'd otherwise just do manually](./manualInstructions.md) to install kind, k9s and argocd.
 
-We try to document this process, but also provide a convenience `Makefile` so you can just run:
+We provide a convenience `Makefile` so you can just run:
 
 `make install`
 
@@ -33,7 +33,7 @@ which should "port-forward" from localhost to the argo host running in docker.
 The output should end with:
 ```bash
 =============================================
-You can open argo at https://localhost:8080
+You can open argo at http://localhost:8080
 =============================================
 ```
 

@@ -75,7 +75,7 @@ function login() {
     argocd login localhost:$ARGO_PORT --username admin --password $MY_ARGO_PWD  --insecure --skip-test-tls 
 
     echo "============================================="
-    echo "You can open argo at https://localhost:$ARGO_PORT"    
+    echo "You can open argo at http://localhost:$ARGO_PORT"    
     echo "============================================="
 }
 
