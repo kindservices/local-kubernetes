@@ -1,38 +1,26 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: example-configmap
-data:
-  config: |
-    # This is an example config file
-    key1: value1
-    key2: value2
-
-
----
-
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: echo-configmap
+  name: kubectl-test-job
 spec:
   template:
     spec:
       containers:
-      - name: echo-configmap
-        image: busybox
+      - name: kubectl-test-container
+        image: bitnami/kubectl:1.21.0
         command: ["/bin/sh", "-c"]
         args:
           - |
-            echo "Contents of the ConfigMap:";
-            cat /config/config;
-        volumeMounts:
-        - name: config-volume
-          mountPath: /config
-          readOnly: true
+            echo "Listing all pods in the default namespace:";
+            kubectl get pods -n default;
+        env:
+        - name: KUBERNETES_SERVICE_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: KUBERNETES_SERVICE_PORT
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostPort
       restartPolicy: OnFailure
-      volumes:
-      - name: config-volume
-        configMap:
-          name: example-configmap
   backoffLimit: 4
