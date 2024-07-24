@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-configmap
+data:
+  config: |
+    # This is an example config file
+    key1: value1
+    key2: value2
+
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: echo-configmap
+spec:
+  template:
+    spec:
+      containers:
+      - name: echo-configmap
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Contents of the ConfigMap:";
+            cat /config/config;
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+          readOnly: true
+      restartPolicy: OnFailure
+      volumes:
+      - name: config-volume
+        configMap:
+          name: example-configmap
+  backoffLimit: 4
