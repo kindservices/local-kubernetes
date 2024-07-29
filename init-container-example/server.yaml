@@ -1,66 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-deploy
+  name: web-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: env-app
+      app: web
   template:
     metadata:
       labels:
-        app: env-app
+        app: web
     spec:
       initContainers:
-      - name: init-environment
+      - name: init-secret
         image: busybox
-        command: ['sh', '-c', 'echo secretValue123 > /secrets/SecretKey']
-        envFrom:
-        - configMapRef:
-            name: env-config
+        command: ['sh', '-c', 'echo mysecret > /mnt/secret/secret']
         volumeMounts:
-        - name: config-volume
-          mountPath: /secrets
+        - name: secret-volume
+          mountPath: /mnt/secret
       containers:
       - name: web
         image: docker.io/kindservices/node-env:local
-        command: ['sh', '-c', 'export HACK=$(cat /secrets/SecretKey) && node server.js']
-        env:
-        - name: FOO
-          valueFrom:
-            configMapKeyRef:
-              name: env-config
-              key: SecretKey
         ports:
         - containerPort: 3000
+        env:
+        - name: SECRET
+          valueFrom:
+            secretKeyRef:
+              name: web-secret
+              key: secret
         volumeMounts:
-        - name: config-volume
-          mountPath: /secrets
+        - name: secret-volume
+          mountPath: /mnt/secret
       volumes:
-      - name: config-volume
+      - name: secret-volume
         emptyDir: {}
-
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
-  name: env-config
+  name: web-secret
+type: Opaque
 data:
-  FOO: "bar"
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: env-service
-spec:
-  selector:
-    app: env-app
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-  type: LoadBalancer
-
-
+  secret: bXlzZWNyZXQ= # 'mysecret' base64 encoded
