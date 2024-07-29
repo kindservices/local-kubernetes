@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kubectl-apply-job
+spec:
+  template:
+    spec:
+      serviceAccountName: job-service-account
+      containers:
+      - name: kubectl-container
+        image: bitnami/kubectl:1.21.0
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            echo "Get Pods Test";
+            kubectl get pods;
+      restartPolicy: OnFailure

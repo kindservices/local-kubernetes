@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: kubectl-test-job
+  name: kubectl-job
 spec:
   template:
     spec:
       containers:
-      - name: kubectl-test-container
+      - name: kubectl-container
         image: bitnami/kubectl:1.21.0
         command: ["/bin/sh", "-c"]
         args:
@@ -24,3 +24,4 @@ spec:
               fieldPath: status.hostPort
       restartPolicy: OnFailure
   backoffLimit: 4
+
