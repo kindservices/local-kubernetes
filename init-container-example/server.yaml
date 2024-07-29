@@ -1,3 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: env-app
+  template:
+    metadata:
+      labels:
+        app: env-app
+    spec:
+      initContainers:
+      - name: init-environment
+        image: busybox
+        command: ['sh', '-c', 'echo secretValue123 > /secrets/SecretKey']
+        envFrom:
+        - configMapRef:
+            name: env-config
+        volumeMounts:
+        - name: config-volume
+          mountPath: /secrets
+      containers:
+      - name: web
+        image: docker.io/kindservices/node-env:local
+        command: ['sh', '-c', 'export HACK=$(cat /secrets/SecretKey) && node server.js']
+        env:
+        - name: FOO
+          valueFrom:
+            configMapKeyRef:
+              name: env-config
+              key: SecretKey
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config-volume
+          mountPath: /secrets
+      volumes:
+      - name: config-volume
+        emptyDir: {}
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,37 +51,16 @@ data:
 
 ---
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
-  name: env-pod
+  name: env-service
 spec:
-  initContainers:
-  - name: init-environment
-    image: busybox
-    command: ['sh', '-c', 'echo $(FOO) > /foo/FOO']
-    envFrom:
-    - configMapRef:
-        name: env-config
-    volumeMounts:
-    - name: foo-volume
-      mountPath: /foo
+  selector:
+    app: env-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer
 
-  containers:
-  - name: web
-    image: node:14
-    command: ['node', 'server.js']
-    env:
-    - name: FOO
-      valueFrom:
-        configMapKeyRef:
-          name: env-config
-          key: FOO
-    ports:
-    - containerPort: 3000
-    volumeMounts:
-    - name: foo-volume
-      mountPath: /foo
 
-  volumes:
-  - name: foo-volume
-    emptyDir: {}
