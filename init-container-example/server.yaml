@@ -15,13 +15,14 @@ spec:
       initContainers:
       - name: init-secret
         image: busybox
-        command: ['sh', '-c', 'echo mysecret > /mnt/secret/secret']
+        command: ['sh', '-c', 'echo somesecret > /mnt/secret/secret']
         volumeMounts:
         - name: secret-volume
           mountPath: /mnt/secret
       containers:
       - name: web
         image: docker.io/kindservices/node-env:local
+        command: ['sh', '-c', 'export HACK=$(cat /mnt/secret/secret) && node server.js']
         ports:
         - containerPort: 3000
         env:
